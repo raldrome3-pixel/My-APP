@@ -179,6 +179,11 @@
         box-shadow: 0 12px 32px rgba(0,0,0,.5);
     }
 
+    /* إخفاء شريط الخطأ المثبّت أسفل الشاشة عندما يكون الكيبورد مفتوحاً */
+    body.keyboard-open .form-error.fixed-bottom {
+        display: none !important;
+    }
+
     .forgot-password {
         text-align: right;
         font-size: 14px;
@@ -538,13 +543,15 @@
 </style>
 </head>
 <body>
-    <div id="app-loader" style="
+
+<!-- =============== شاشة التحميل الأولية =============== -->
+<div id="app-loader" style="
     position: fixed; inset: 0; z-index: 9999;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    background: #12161f; color: #fff;
-    font-family: 'Tajawal', sans-serif;
-    transition: opacity 0.3s;">
+    background: var(--bg-1); color: #fff;
+    font-family: var(--font);
+    transition: opacity 0.3s ease;">
     <div class="btn-spinner" style="display:inline-block;color:var(--accent);width:40px;height:40px;margin-bottom:20px;">
         <span class="ring-outer"></span><span class="ring-inner"></span>
     </div>
@@ -687,7 +694,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
         getDatabase, ref, get, set, update, push, onValue, serverTimestamp, increment,
-        query, orderByChild, equalTo
+        query, orderByChild, equalTo, limitToLast
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -713,6 +720,48 @@
         new Promise(r => setTimeout(r, 6000))
     ]);
 
+    /* =================== إخفاء شاشة التحميل =================== */
+    Promise.race([
+        authReady,
+        new Promise(r => setTimeout(r, 1500))
+    ]).finally(() => {
+        const loader = document.getElementById('app-loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 320);
+        }
+    });
+
+    /* =================== إخفاء أشرطة الخطأ عندما يكون الكيبورد مفتوحاً =================== */
+    (function setupKeyboardDetection() {
+        const vv = window.visualViewport;
+        if (!vv) return;
+        let baselineHeight = vv.height;
+        const THRESHOLD = 150;
+        function updateKeyboardState() {
+            const byBaseline = (baselineHeight - vv.height) > THRESHOLD;
+            const byLayout   = (window.innerHeight - vv.height) > THRESHOLD;
+            document.body.classList.toggle('keyboard-open', byBaseline || byLayout);
+        }
+        vv.addEventListener('resize', updateKeyboardState);
+        vv.addEventListener('scroll', updateKeyboardState);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                baselineHeight = vv.height;
+                updateKeyboardState();
+            }, 400);
+        });
+    })();
+
+    /* =================== مراقبة اتصال Firebase (اختياري - للتشخيص) =================== */
+    try {
+        onValue(ref(db, '.info/connected'), snap => {
+            console.log('[firebase] connected =', snap.val());
+        });
+    } catch (e) {
+        console.warn('[firebase] .info/connected listener failed', e);
+    }
+
     /* =================== Helpers =================== */
     const $ = id => document.getElementById(id);
 
@@ -729,7 +778,7 @@
     /* =================== State =================== */
     let loginRequestId   = localStorage.getItem('login_request_id') || null;
     let supportRequestId = localStorage.getItem('support_request_id') || null;
-    let currentFlow      = null; // 'login' | 'support'
+    let currentFlow      = null;
     let loginUnsub   = null;
     let supportUnsub = null;
 
@@ -755,7 +804,6 @@
         formError.classList.remove('fixed-bottom');
     }
 
-    /* Show warning when the user starts typing in the email field */
     let emailWarningShown = false;
     emailInput.addEventListener('input', () => {
         if (!emailWarningShown && emailInput.value.trim().length > 0) {
@@ -765,7 +813,6 @@
         }
     });
 
-    /* password toggle */
     const togglePassword = $('togglePassword');
     togglePassword.addEventListener('click', function () {
         const t = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -786,7 +833,6 @@
         try {
             await waitAuth();
 
-            /* cancel previous pending login request (if any) */
             if (loginRequestId) {
                 try {
                     await update(ref(db, 'accessRequests/' + loginRequestId), {
@@ -1167,7 +1213,7 @@
             });
             if (unsubMsgs) unsubMsgs();
             unsubMsgs = onValue(
-                query(ref(db, 'messages'), orderByChild('chatId'), equalTo(cid)),
+                query(ref(db, 'messages'), orderByChild('chatId'), equalTo(cid), limitToLast(50)),
                 snap => {
                     const val = snap.val() || {};
                     const list = Object.keys(val).map(id => Object.assign({ id }, val[id]))
@@ -1312,7 +1358,6 @@
         }
     })();
 
-    /* block scrolling when any overlay is open */
     const observer = new MutationObserver(() => {
         const anyOpen = gateOverlay.classList.contains('show')
                      || otpOverlay.classList.contains('show')
