@@ -26,14 +26,20 @@ jobs:
       - name: Add Android
         run: npx cap add android
 
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
       - name: App icon
         run: |
+          IM=$(command -v magick || command -v convert)
           RES=android/app/src/main/res
           rm -rf $RES/mipmap-anydpi-v26
           for d in "mdpi 48" "hdpi 72" "xhdpi 96" "xxhdpi 144" "xxxhdpi 192"; do
             set -- $d
             mkdir -p $RES/mipmap-$1
-            convert icon.png -resize "${2}x${2}!" $RES/mipmap-$1/ic_launcher.png
+            $IM icon.png -resize "${2}x${2}!" $RES/mipmap-$1/ic_launcher.png
             cp $RES/mipmap-$1/ic_launcher.png $RES/mipmap-$1/ic_launcher_round.png
             cp $RES/mipmap-$1/ic_launcher.png $RES/mipmap-$1/ic_launcher_foreground.png
           done
