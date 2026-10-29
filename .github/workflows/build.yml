@@ -26,6 +26,17 @@ jobs:
       - name: Add Android
         run: npx cap add android
 
+      - name: App icon
+        run: |
+          mkdir -p assets
+          cp icon.png assets/icon-only.png
+          npx @capacitor/assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000'
+
+      - name: Set version
+        run: |
+          sed -i 's/versionCode 1/versionCode 302/' android/app/build.gradle
+          sed -i 's/versionName "1.0"/versionName "3.0.2"/' android/app/build.gradle
+
       - name: Sync
         run: npx cap sync android
 
