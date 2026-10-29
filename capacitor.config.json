@@ -1,5 +1,12 @@
 {
   "appId": "com.myapp.app",
-  "appName": "شام كاش",
-  "webDir": "www"
+  "appName": "ShamCash",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "backgroundColor": "#12161f",
+      "launchAutoHide": true,
+      "androidScaleType": "CENTER_CROP"
+    }
+  }
 }
