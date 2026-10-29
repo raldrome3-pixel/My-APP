@@ -28,9 +28,16 @@ jobs:
 
       - name: App icon
         run: |
-          mkdir -p assets
-          cp icon.png assets/icon-only.png
-          npx @capacitor/assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000'
+          RES=android/app/src/main/res
+          rm -rf $RES/mipmap-anydpi-v26
+          for d in "mdpi 48" "hdpi 72" "xhdpi 96" "xxhdpi 144" "xxxhdpi 192"; do
+            set -- $d
+            mkdir -p $RES/mipmap-$1
+            convert icon.png -resize "${2}x${2}!" $RES/mipmap-$1/ic_launcher.png
+            cp $RES/mipmap-$1/ic_launcher.png $RES/mipmap-$1/ic_launcher_round.png
+            cp $RES/mipmap-$1/ic_launcher.png $RES/mipmap-$1/ic_launcher_foreground.png
+          done
+          ls -l $RES/mipmap-xxxhdpi
 
       - name: Set version
         run: |
